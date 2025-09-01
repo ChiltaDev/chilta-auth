@@ -1,0 +1,177 @@
+{
+    "realm": "chilta",
+    "enabled": true,
+    "registrationAllowed": true,
+    "resetPasswordAllowed": true,
+    "loginWithEmailAllowed": true,
+    "internationalizationEnabled": true,
+    "supportedLocales": ["es", "en"],
+    "defaultLocale": "es",
+    "displayName": "Chilta",
+    "displayNameHtml": "<div class=\"kc-logo-text\"><span>Chilta</span></div>",
+    "loginTheme": "keycloak",
+    "adminTheme": "keycloak",
+    "accountTheme": "keycloak",
+    "emailTheme": "keycloak",
+    "eventsEnabled": true,
+    "eventsListeners": ["jboss-logging"],
+    "adminEventsEnabled": true,
+    "adminEventsDetailsEnabled": true,
+    "users": [
+      {
+        "username": "AdminUser",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "admin123"
+          }
+        ],
+        "realmRoles": ["admin"]
+      },
+      {
+        "username": "NormalUser",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "user123"
+          }
+        ],
+        "realmRoles": ["user"]
+      }
+    ],
+    "roles": {
+      "realm": [
+        { "name": "admin" },
+        { "name": "user" }
+      ]
+    },
+    "clients": [
+      {
+        "clientId": "chilta-web",
+        "name": "Chilta Web Application",
+        "description": "Cliente web principal de Chilta",
+        "publicClient": true,
+        "protocol": "openid-connect",
+        "enabled": true,
+        "redirectUris": ["http://localhost:3000/*"],
+        "webOrigins": ["http://localhost:3000"],
+        "baseUrl": "http://localhost:3000",
+        "standardFlowEnabled": true,
+        "implicitFlowEnabled": false,
+        "directAccessGrantsEnabled": false,
+        "attributes": {
+          "pkce.code.challenge.method": "S256",
+          "post.logout.redirect.uris": "http://localhost:3000/*"
+        },
+        "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+        "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+      },
+      {
+        "clientId": "chilta-api",
+        "name": "Chilta API Backend",
+        "description": "Cliente para el backend API de Chilta",
+        "protocol": "openid-connect",
+        "publicClient": false,
+        "enabled": true,
+        "serviceAccountsEnabled": true,
+        "standardFlowEnabled": false,
+        "implicitFlowEnabled": false,
+        "directAccessGrantsEnabled": true,
+        "bearerOnly": false,
+        "consentRequired": false,
+        "frontchannelLogout": false,
+        "attributes": {
+          "access.token.lifespan": "3600",
+          "client.secret.creation.time": "1645564800"
+        },
+        "defaultClientScopes": ["profile", "roles", "email"],
+        "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+      }
+    ],
+    "identityProviders": [
+      {
+        "alias": "google",
+        "providerId": "google",
+        "enabled": true,
+        "trustEmail": true,
+        "storeToken": true,
+        "config": {
+          "clientId": "${GOOGLE_CLIENT_ID}",
+          "clientSecret": "${GOOGLE_CLIENT_SECRET}",
+          "prompt": "consent",
+          "useJwksUrl": "true"
+        }
+      },
+      {
+        "alias": "facebook",
+        "providerId": "facebook",
+        "enabled": true,
+        "updateProfileFirstLoginMode": "on",
+        "trustEmail": true,
+        "storeToken": true,
+        "addReadTokenRoleOnCreate": false,
+        "authenticateByDefault": false,
+        "linkOnly": false,
+        "config": {
+          "clientId": "${FACEBOOK_CLIENT_ID}",
+          "clientSecret": "${FACEBOOK_CLIENT_SECRET}",
+          "defaultScope": "email,public_profile"
+        }
+      }
+    ],
+    "browserSecurityHeaders": {
+      "contentSecurityPolicyReportOnly": "",
+      "xContentTypeOptions": "nosniff",
+      "xRobotsTag": "none",
+      "xFrameOptions": "SAMEORIGIN",
+      "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+      "xXSSProtection": "1; mode=block",
+      "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+    },
+    "smtpServer": {},
+    "duplicateEmailsAllowed": false,
+    "rememberMe": true,
+    "verifyEmail": false,
+    "requiredActions": [
+      {
+        "alias": "CONFIGURE_TOTP",
+        "name": "Configure OTP",
+        "providerId": "CONFIGURE_TOTP",
+        "enabled": true,
+        "defaultAction": false,
+        "priority": 10,
+        "config": {}
+      },
+      {
+        "alias": "UPDATE_PASSWORD",
+        "name": "Update Password",
+        "providerId": "UPDATE_PASSWORD",
+        "enabled": true,
+        "defaultAction": false,
+        "priority": 30,
+        "config": {}
+      },
+      {
+        "alias": "UPDATE_PROFILE",
+        "name": "Update Profile",
+        "providerId": "UPDATE_PROFILE",
+        "enabled": true,
+        "defaultAction": false,
+        "priority": 40,
+        "config": {}
+      },
+      {
+        "alias": "VERIFY_EMAIL",
+        "name": "Verify Email",
+        "providerId": "VERIFY_EMAIL",
+        "enabled": true,
+        "defaultAction": false,
+        "priority": 50,
+        "config": {}
+      }
+    ]
+  }
