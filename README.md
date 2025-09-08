@@ -8,7 +8,8 @@ Este es el servicio de autenticación y autorización de **Chilta**, implementad
 
 - 🔑 **Autenticación centralizada** con múltiples proveedores
 - 👥 **Gestión de usuarios** y roles
--  **Autorización basada en roles** (RBAC)
+- 🔄 **Sincronización automática** de usuarios con el backend
+- 🛡️ **Autorización basada en roles** (RBAC)
 - 🌐 **Integración OAuth** con Google y Facebook
 - 🏢 **Realm personalizado** para Chilta
 - 🐳 **Despliegue con Docker** listo para producción
@@ -19,6 +20,7 @@ Este es el servicio de autenticación y autorización de **Chilta**, implementad
 ### Prerrequisitos
 
 - Docker y Docker Compose instalados
+- Maven instalado (para construir el SPI)
 - Variables de entorno configuradas (ver sección de configuración)
 
 ### Despliegue
@@ -31,19 +33,19 @@ cd chilta-auth
 
 2. **Configurar variables de entorno:**
 ```bash
-cp .env.example .env
+cp env.example .env
 # Editar .env con tus credenciales
 ```
 
-3. **Levantar el servicio:**
+3. **Levantar todos los servicios:**
 ```bash
 docker compose up -d
 ```
 
 4. **Acceder a Keycloak:**
    - **URL**: http://localhost:8080
-   - **Usuario**: `admin`
-   - **Contraseña**: `admin`
+   - **Usuario**: Configurado en variables de entorno
+   - **Contraseña**: Configurada en variables de entorno
 
 ## ️ Arquitectura
 
@@ -57,9 +59,15 @@ docker compose up -d
 
 ```
 chilta-auth/
-├── docker-compose.yml          # Configuración de servicios
-├── realms/
+├── docker-compose.yml          # Configuración de servicios (incluye construcción automática de los SPI)
+├── keycloak/
 │   └── realm-chilta.json       # Configuración del realm
+├── providers/                  # Proveedores de Keycloak
+│   └── user-sync-spi/          # SPI de sincronización de usuarios
+│       ├── src/main/java/      # Código fuente del SPI
+│       ├── pom.xml             # Configuración de Maven
+│       └── README.md           # Documentación del SPI
+├── env.example                 # Ejemplo de variables de entorno
 ├── .env                        # Variables de entorno
 └── README.md                   # Documentación
 ```
@@ -71,20 +79,54 @@ chilta-auth/
 Crear archivo `.env` con las siguientes variables:
 
 ```env
+# Configuración de Keycloak
+KC_DB=postgres
+KC_DB_URL=jdbc:postgresql://db-keycloak:5432/keycloak
+KC_DB_USERNAME=keycloak
+KC_DB_PASSWORD=keycloak
+KEYCLOAK_ADMIN=admin
+KEYCLOAK_ADMIN_PASSWORD=admin
+
 # OAuth Providers
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 FACEBOOK_CLIENT_ID=your-facebook-client-id
 FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
+
+# Configuración de la base de datos del backend (para sincronización)
+BACKEND_DB_HOST=localhost
+BACKEND_DB_PORT=5432
+BACKEND_DB_NAME=database
+BACKEND_DB_USER=user
+BACKEND_DB_PASSWORD=pass
 ```
+
+### Configuración del SPI de Sincronización
+
+El SPI de sincronización de usuarios se conecta automáticamente a la base de datos del backend usando las variables de entorno configuradas en el archivo `.env`.
+
+**Variables requeridas para el SPI:**
+- `BACKEND_DB_HOST`: Host de la base de datos del backend
+- `BACKEND_DB_PORT`: Puerto de la base de datos del backend
+- `BACKEND_DB_NAME`: Nombre de la base de datos del backend
+- `BACKEND_DB_USER`: Usuario de la base de datos del backend
+- `BACKEND_DB_PASSWORD`: Contraseña de la base de datos del backend
+
+**Nota**: El SPI busca las variables de entorno en este orden de prioridad:
+1. Variables específicas del backend (`BACKEND_DB_*`)
+2. Variables genéricas (`DB_*`)
+3. Configuración de Keycloak
+4. Valores por defecto
 
 ### Configuración de Docker Compose
 
 El servicio incluye:
 
-- **keycloak**: Servidor principal de autenticación
-- **db-keycloak**: Base de datos PostgreSQL
+- **keycloak**: Servidor principal de autenticación con SPI de sincronización
+- **db-keycloak**: Base de datos PostgreSQL para Keycloak
 - **Volúmenes**: Persistencia de datos
+
+**Nota**: La base de datos del backend debe estar disponible externamente. El SPI se conecta a ella usando las variables de entorno configuradas.
 
 ## 👥 Realm Chilta
 
@@ -126,6 +168,52 @@ El servicio incluye:
 - Configurado para autenticación con Facebook
 - Requiere `FACEBOOK_CLIENT_ID` y `FACEBOOK_CLIENT_SECRET`
 
+## 🔄 SPI de Sincronización de Usuarios
+
+### Descripción
+
+El **Service Provider Interface (SPI)** de sincronización de usuarios mantiene automáticamente la consistencia entre los usuarios de Keycloak y la base de datos del backend de metaprop.
+
+### Funcionalidad
+
+El SPI escucha los siguientes eventos:
+
+- **Registro de usuarios** (`REGISTER`)
+- **Creación de usuarios** (AdminEvent `CREATE`)
+- **Actualización de usuarios** (AdminEvent `UPDATE`)
+- **Eliminación de usuarios** (AdminEvent `DELETE`)
+
+### Mapeo de Datos
+
+| Keycloak | Backend (metaprop) |
+|----------|-------------------|
+| `user.getId()` | `users.uuid` |
+| `user.getFirstName() + " " + user.getLastName()` | `users.name` |
+| `user.getEmail()` | `users.email` |
+| `user.getFirstAttribute("picture")` | `users.pictureLink` |
+
+### Construcción Automática del SPI
+
+El SPI se construye automáticamente cuando ejecutas `docker compose up -d`. No necesitas construir manualmente el SPI.
+
+**Proceso automatizado:**
+1. Docker Compose ejecuta automáticamente el servicio `build-spi`
+2. Se construye el SPI usando Maven en un contenedor Docker
+3. Keycloak espera a que el SPI esté construido antes de iniciar
+4. Se levantan todos los servicios con el SPI ya construido
+
+**Orden de ejecución:**
+1. `build-spi` - Construye el SPI
+2. `db-keycloak` - Inicia la base de datos
+3. `keycloak` - Inicia Keycloak (depende de `build-spi` y `db-keycloak`)
+
+### Logs y Monitoreo
+
+Los logs del SPI aparecen en los logs de Keycloak. Busca mensajes que contengan:
+- `ChiltaUserSyncEventListenerProvider`
+- `Usuario sincronizado`
+- `Error al sincronizar`
+
 ## 🔧 Configuración Avanzada
 
 ### Personalización del Realm
@@ -139,12 +227,23 @@ El archivo `realms/realm-chilta.json` contiene:
 
 ### Configuración de Base de Datos
 
+#### Base de Datos de Keycloak
 ```yaml
-# PostgreSQL Configuration
+# PostgreSQL Configuration para Keycloak
 KC_DB: postgres
 KC_DB_URL: jdbc:postgresql://db-keycloak:5432/keycloak
 KC_DB_USERNAME: keycloak
 KC_DB_PASSWORD: keycloak
+```
+
+#### Base de Datos del Backend (para sincronización)
+```yaml
+# Variables de entorno para la conexión al backend
+BACKEND_DB_HOST: ${BACKEND_DB_HOST}
+BACKEND_DB_PORT: ${BACKEND_DB_PORT}
+BACKEND_DB_NAME: ${BACKEND_DB_NAME}
+BACKEND_DB_USER: ${BACKEND_DB_USER}
+BACKEND_DB_PASSWORD: ${BACKEND_DB_PASSWORD}
 ```
 
 ## 🛠️ Operaciones
@@ -152,11 +251,14 @@ KC_DB_PASSWORD: keycloak
 ### Comandos Útiles
 
 ```bash
-# Levantar servicios
+# Levantar todos los servicios (construcción automática del SPI)
 docker compose up -d
 
 # Ver logs
 docker compose logs -f keycloak
+
+# Ver logs del proceso de construcción del SPI
+docker compose logs build-spi
 
 # Detener servicios
 docker compose down

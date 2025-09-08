@@ -1,11 +1,21 @@
 services:
+  # Servicio para construir el SPI de Keycloak
+  user-sync-spi:
+    image: maven:3.9.6-openjdk-17
+    container_name: chilta-user-sync-spi
+    working_dir: /app
+    volumes:
+      - ./providers/user-sync-spi:/app
+      - maven-cache:/root/.m2
+    command: mvn clean package -DskipTests
+
   db-keycloak:
     image: postgres:15
     container_name: chilta-back-database-keycloak
     environment:
       POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
+      POSTGRES_USER: ${KC_DB_USERNAME}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
     volumes:
       - pgkeycloak:/var/lib/postgresql/data
 
@@ -14,23 +24,33 @@ services:
     container_name: chilta-back-keycloak
     command: start-dev --import-realm
     environment:
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://db-keycloak:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      # OAuth providers configuration
+      # Keycloak
+      KC_DB: ${KC_DB}
+      KC_DB_URL: ${KC_DB_URL}
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # Identity Providers
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
       FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET}
+      # Backend
+      BACKEND_DB_HOST: ${BACKEND_DB_HOST}
+      BACKEND_DB_PORT: ${BACKEND_DB_PORT}
+      BACKEND_DB_NAME: ${BACKEND_DB_NAME}
+      BACKEND_DB_USER: ${BACKEND_DB_USER}
+      BACKEND_DB_PASSWORD: ${BACKEND_DB_PASSWORD}
     ports:
       - "8080:8080"
     volumes:
       - ./keycloak/realm-chilta.json:/opt/keycloak/data/import/realm-chilta.json:ro
+      - ./providers/user-sync-spi/target/chilta-user-sync-spi-1.0.0.jar:/opt/keycloak/providers/chilta-user-sync-spi.jar:ro
     depends_on:
       - db-keycloak
+      - user-sync-spi
 
 volumes:
   pgkeycloak:
+  maven-cache:
