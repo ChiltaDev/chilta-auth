@@ -8,15 +8,15 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChiltaUserSyncEventListenerProviderFactory implements EventListenerProviderFactory {
+public class UserSyncEventListenerProviderFactory implements EventListenerProviderFactory {
     
-    private static final Logger logger = LoggerFactory.getLogger(ChiltaUserSyncEventListenerProviderFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserSyncEventListenerProviderFactory.class);
     
     private DatabaseConfig databaseConfig;
     
     @Override
     public EventListenerProvider create(KeycloakSession session) {
-        return new ChiltaUserSyncEventListenerProvider(session, databaseConfig);
+        return new UserSyncEventListenerProvider(session, databaseConfig);
     }
     
     @Override
@@ -26,14 +26,12 @@ public class ChiltaUserSyncEventListenerProviderFactory implements EventListener
     
     @Override
     public void postInit(KeycloakSessionFactory factory) {
-        // Inicialización post-construcción si es necesario
-        logger.info("ChiltaUserSyncEventListenerProviderFactory post-inicializado");
+        logger.info("UserSyncEventListenerProviderFactory post-inicializado");
     }
     
     @Override
     public void close() {
-        // Limpiar recursos
-        logger.info("ChiltaUserSyncEventListenerProviderFactory cerrado");
+        logger.info("UserSyncEventListenerProviderFactory cerrado");
     }
     
     @Override
