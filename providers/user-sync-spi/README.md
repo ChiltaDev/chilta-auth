@@ -76,7 +76,7 @@ El SPI se construye automáticamente cuando ejecutas `docker compose up -d`. No 
 ## Instalación
 
 1. El SPI se construye automáticamente al ejecutar `docker compose up -d`
-2. El JAR se genera en `target/chilta-user-sync-spi-1.0.0.jar`
+2. El JAR se genera en `target/user-sync-spi-1.0.0.jar`
 3. El docker-compose.yml monta automáticamente el JAR en Keycloak
 
 ## Uso
@@ -88,7 +88,7 @@ El SPI se construye automáticamente cuando ejecutas `docker compose up -d`. No 
 ## Logs
 
 Los logs del SPI aparecerán en los logs de Keycloak. Busca mensajes que contengan:
-- `ChiltaUserSyncEventListenerProvider`
+- `UserSyncEventListenerProvider`
 - `Usuario sincronizado`
 - `Error al sincronizar`
 
@@ -97,8 +97,8 @@ Los logs del SPI aparecerán en los logs de Keycloak. Busca mensajes que conteng
 ```
 providers/user-sync-spi/
 ├── src/main/java/com/chilta/spi/
-│   ├── ChiltaUserSyncEventListenerProvider.java      # Implementación del listener
-│   ├── ChiltaUserSyncEventListenerProviderFactory.java # Factory del provider
+│   ├── UserSyncEventListenerProvider.java      # Implementación del listener
+│   ├── UserSyncEventListenerProviderFactory.java # Factory del provider
 │   └── DatabaseConfig.java                           # Configuración de BD
 ├── src/main/resources/META-INF/services/
 │   └── org.keycloak.events.EventListenerProviderFactory # Registro del SPI

@@ -1,6 +1,7 @@
 package com.chilta.spi.handlers;
 
 import com.chilta.spi.DatabaseConfig;
+import com.chilta.spi.exceptions.DatabaseErrorException;
 import com.chilta.spi.handlers.abstracts.EventHandler;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.models.KeycloakSession;
@@ -20,13 +21,10 @@ public class UserDeleteHandler extends EventHandler {
 
     @Override
     public void handle(AdminEvent event) {
-        try {
-            String userId = getUserIdFromPath(event);
-            deleteUserFromBackend(userId);
-            logger.info("Eliminated user synced: {}", userId);
-        } catch (Exception e) {
-            logger.error("Db connection error while syncing eliminated user", e);
-        }
+        String userId = getUserIdFromPath(event);
+        logger.info("Deleting user with id {}", userId);
+        deleteUserFromBackend(userId);
+        logger.info("Eliminated user synced: {}", userId);
     }
 
     private void deleteUserFromBackend(String userId) {
@@ -39,7 +37,8 @@ public class UserDeleteHandler extends EventHandler {
                 logger.info("User eliminated from backend: {} rows affected", rowsAffected);
             }
         } catch (SQLException e) {
-            logger.error("Erro while trying to eliminate user from database", e);
+            logger.error("Error while trying to eliminate user from database", e);
+            throw new DatabaseErrorException("Error while trying to eliminate user from database: " + e.getMessage(), e);
         }
     }
 }

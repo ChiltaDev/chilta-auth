@@ -1,6 +1,7 @@
 package com.chilta.spi.handlers;
 
 import com.chilta.spi.DatabaseConfig;
+import com.chilta.spi.exceptions.DatabaseErrorException;
 import com.chilta.spi.handlers.abstracts.UserCreationHandler;
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
@@ -25,17 +26,14 @@ public class UserRegisterHandler extends UserCreationHandler {
 
     @Override
     public void handle(Event event) {
-        try {
-            String userId = event.getUserId();
-            if (userId != null) {
-                UserModel user = getUserModel(userId);
-                if (user != null) {
-                    syncUserToBackend(user);
-                    logger.info("User synced after registry: {}", user.getUsername());
-                }
+        String userId = event.getUserId();
+        if (userId != null) {
+            UserModel user = getUserModel(userId);
+            if (user != null) {
+                logger.info("Registering user with id {}", user.getId());
+                syncUserToBackend(user);
+                logger.info("User synced after registry: {}", user.getUsername());
             }
-        } catch (Exception e) {
-            logger.error("Error while trying to sync user after registry", e);
         }
     }
 
@@ -44,6 +42,7 @@ public class UserRegisterHandler extends UserCreationHandler {
             createUserInBackend(connection, user);
         } catch (SQLException e) {
             logger.error("Db connection error while syncing user after registery", e);
+            throw new DatabaseErrorException("Db connection error while syncing user after registery: " + e.getMessage(), e);
         }
     }
 }

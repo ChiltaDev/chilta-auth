@@ -14,7 +14,7 @@
     "accountTheme": "keycloak",
     "emailTheme": "keycloak",
     "eventsEnabled": true,
-    "eventsListeners": ["jboss-logging"],
+    "eventsListeners": ["jboss-logging", "user-sync-spi"],
     "adminEventsEnabled": true,
     "adminEventsDetailsEnabled": true,
     "users": [

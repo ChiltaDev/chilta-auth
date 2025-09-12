@@ -36,6 +36,6 @@ public class UserSyncEventListenerProviderFactory implements EventListenerProvid
     
     @Override
     public String getId() {
-        return "chilta-user-sync";
+        return "user-sync-spi";
     }
 }

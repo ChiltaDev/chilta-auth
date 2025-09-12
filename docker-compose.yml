@@ -1,28 +1,23 @@
 services:
-  # Servicio para construir el SPI de Keycloak
-  user-sync-spi:
-    image: maven:3.9.6-openjdk-17
-    container_name: chilta-user-sync-spi
-    working_dir: /app
-    volumes:
-      - ./providers/user-sync-spi:/app
-      - maven-cache:/root/.m2
-    command: mvn clean package -DskipTests
-
   db-keycloak:
-    image: postgres:15
+    image: postgres:16
     container_name: chilta-back-database-keycloak
+    ports:
+     - "5434:5432"
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: ${KC_DB_USERNAME}
       POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
+    networks:
+      - chilta-network
     volumes:
       - pgkeycloak:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: chilta-back-keycloak
-    command: start-dev --import-realm
     environment:
       # Keycloak
       KC_DB: ${KC_DB}
@@ -46,11 +41,12 @@ services:
       - "8080:8080"
     volumes:
       - ./keycloak/realm-chilta.json:/opt/keycloak/data/import/realm-chilta.json:ro
-      - ./providers/user-sync-spi/target/chilta-user-sync-spi-1.0.0.jar:/opt/keycloak/providers/chilta-user-sync-spi.jar:ro
     depends_on:
       - db-keycloak
-      - user-sync-spi
-
+    networks:
+      - chilta-network
+networks:
+  chilta-network:
+    external: true
 volumes:
   pgkeycloak:
-  maven-cache:

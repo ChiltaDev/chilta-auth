@@ -1,6 +1,7 @@
 package com.chilta.spi.handlers;
 
 import com.chilta.spi.DatabaseConfig;
+import com.chilta.spi.exceptions.DatabaseErrorException;
 import com.chilta.spi.handlers.abstracts.EventHandler;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.models.KeycloakSession;
@@ -21,15 +22,12 @@ public class UserUpdateHandler extends EventHandler {
 
     @Override
     public void handle(AdminEvent event) {
-        try {
-            String userId = getUserIdFromPath(event);
-            UserModel user = getUserModel(userId);
-            if (user != null) {
-                syncUserToBackend(user);
-                logger.info("Usuario actualizado sincronizado: {}", user.getUsername());
-            }
-        } catch (Exception e) {
-            logger.error("Error al sincronizar usuario actualizado", e);
+        String userId = getUserIdFromPath(event);
+        UserModel user = getUserModel(userId);
+        if (user != null) {
+            logger.info("Updating user with id {}", user.getId());
+            syncUserToBackend(user);
+            logger.info("Updated user synced: {}", user.getUsername());
         }
     }
 
@@ -37,7 +35,8 @@ public class UserUpdateHandler extends EventHandler {
         try (Connection connection = getDatabaseConnection()) {
             updateUserInBackend(connection, user);
         } catch (SQLException e) {
-            logger.error("Error de conexión a la base de datos del backend", e);
+            logger.error("Db connection error while syncing user after updating", e);
+            throw new DatabaseErrorException("Db connection error while syncing user after registery: " + e.getMessage(), e);
         }
     }
 
