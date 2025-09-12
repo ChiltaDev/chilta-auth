@@ -63,7 +63,7 @@ chilta-auth/
 ├── keycloak/
 │   └── realm-chilta.json       # Configuración del realm
 ├── providers/                  # Proveedores de Keycloak
-│   └── user-sync-spi/          # SPI de sincronización de usuarios
+│   └── sync-user-storage/          # SPI de sincronización de usuarios
 │       ├── src/main/java/      # Código fuente del SPI
 │       ├── pom.xml             # Configuración de Maven
 │       └── README.md           # Documentación del SPI

@@ -3,8 +3,8 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copiamos pom y código del SPI
-COPY providers/user-sync-spi/pom.xml .
-COPY providers/user-sync-spi/src ./src
+COPY providers/sync-user-storage/pom.xml .
+COPY providers/sync-user-storage/src ./src
 
 # Compilamos
 RUN mvn clean package -DskipTests
