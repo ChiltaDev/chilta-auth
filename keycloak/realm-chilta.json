@@ -135,6 +135,7 @@
       "enabled": true,
       "trustEmail": true,
       "storeToken": true,
+      "updateProfileFirstLoginMode": "on",
       "config": {
         "clientId": "${GOOGLE_CLIENT_ID}",
         "clientSecret": "${GOOGLE_CLIENT_SECRET}",
