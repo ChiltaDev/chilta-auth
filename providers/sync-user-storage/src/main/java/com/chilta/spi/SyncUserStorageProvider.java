@@ -56,7 +56,7 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
             statement.setString(3, user.getLastName());
             statement.setString(4, user.getUsername());
             statement.setString(5, user.getEmail());
-            statement.setString(6, getPictureLink(user));
+            statement.setString(6, SyncUserAdapter.getPictureLink(user));
 
             int rowsAffected = statement.executeUpdate();
             logger.info("User {} in backend: {} rows affected",
@@ -66,7 +66,7 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
             throw new DatabaseErrorException("Database error while creating user", exception);
         }
         user.setEnabled(true);
-        return user;
+        return new SyncUserAdapter(user, databaseConnectionManager);
     }
 
     private UserProvider getUserProvider() {
@@ -122,15 +122,5 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
             return new SyncUserAdapter(user, this.databaseConnectionManager);
         }
         return null;
-    }
-
-    private String getPictureLink(UserModel user) {
-        String pictureLink = user.getFirstAttribute("picture");
-        if (pictureLink == null || pictureLink.isEmpty()) {
-            return "https://ui-avatars.com/api/?name=" +
-                    user.getFirstName() + "+" + user.getLastName() +
-                    "&background=random";
-        }
-        return pictureLink;
     }
 }

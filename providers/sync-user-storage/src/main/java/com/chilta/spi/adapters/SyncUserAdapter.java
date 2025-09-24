@@ -1,6 +1,5 @@
 package com.chilta.spi.adapters;
 
-import com.chilta.spi.SyncUserStorageProvider;
 import com.chilta.spi.exceptions.DatabaseErrorException;
 import com.chilta.spi.managers.DatabaseConnectionManager;
 
@@ -33,8 +32,8 @@ public class SyncUserAdapter implements UserModel {
         String sql = "UPDATE users SET \"updatedAt\" = NOW(), email = ? WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             UUID uuid = UUID.fromString(delegate.getId());
-            statement.setObject(1, uuid);
-            statement.setString(2, email);
+            statement.setObject(2, uuid);
+            statement.setString(1, email);
             int rowsAffected = statement.executeUpdate();
             logger.info("Updated user email in backend: {} rows affected", rowsAffected);
         } catch (SQLException e) {
@@ -101,11 +100,12 @@ public class SyncUserAdapter implements UserModel {
     @Override
     public void setFirstName(String firstName) {
         Connection connection = databaseConnectionManager.getConnection();
-        String sql = "UPDATE users SET \"updatedAt\" = NOW(), \"firstName\" = ? WHERE uuid = ?";
+        String sql = "UPDATE users SET \"updatedAt\" = NOW(), \"pictureLink\" = ?, \"firstName\" = ? WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             UUID uuid = UUID.fromString(delegate.getId());
-            statement.setObject(1, uuid);
+            statement.setObject(3, uuid);
             statement.setString(2, firstName);
+            statement.setString(1, getPictureLink(this));
             int rowsAffected = statement.executeUpdate();
             logger.info("Updated user firstName in backend: {} rows affected", rowsAffected);
         } catch (SQLException e) {
@@ -117,11 +117,12 @@ public class SyncUserAdapter implements UserModel {
     @Override
     public void setLastName(String lastName) {
         Connection connection = databaseConnectionManager.getConnection();
-        String sql = "UPDATE users SET \"updatedAt\" = NOW(), \"lastName\" = ? WHERE uuid = ?";
+        String sql = "UPDATE users SET \"updatedAt\" = NOW(), \"pictureLink\" = ?, \"lastName\" = ? WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             UUID uuid = UUID.fromString(delegate.getId());
-            statement.setObject(1, uuid);
+            statement.setObject(3, uuid);
             statement.setString(2, lastName);
+            statement.setString(1, getPictureLink(this));
             int rowsAffected = statement.executeUpdate();
             logger.info("Updated user email in lastName: {} rows affected", rowsAffected);
         } catch (SQLException e) {
@@ -146,8 +147,8 @@ public class SyncUserAdapter implements UserModel {
         String sql = "UPDATE users SET \"updatedAt\" = NOW(), username = ? WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             UUID uuid = UUID.fromString(delegate.getId());
-            statement.setObject(1, uuid);
-            statement.setString(2, username);
+            statement.setObject(2, uuid);
+            statement.setString(1, username);
             int rowsAffected = statement.executeUpdate();
             logger.info("Updated user email in username: {} rows affected", rowsAffected);
         } catch (SQLException e) {
@@ -198,6 +199,17 @@ public class SyncUserAdapter implements UserModel {
 
     @Override
     public void setAttribute(String name, List<String> values) {
+        switch (name) {
+            case UserModel.FIRST_NAME:
+                setFirstName(values.get(0));
+                break;
+            case UserModel.LAST_NAME:
+                setLastName(values.get(0));
+                break;
+            case UserModel.EMAIL:
+                setEmail(values.get(0));
+                break;
+        }
         delegate.setAttribute(name, values);
     }
 
@@ -264,5 +276,15 @@ public class SyncUserAdapter implements UserModel {
     @Override
     public void deleteRoleMapping(RoleModel role) {
         delegate.deleteRoleMapping(role);
+    }
+
+    public static String getPictureLink(UserModel user) {
+        String pictureLink = user.getFirstAttribute("picture");
+        if (pictureLink == null || pictureLink.isEmpty()) {
+            return "https://ui-avatars.com/api/?name=" +
+                    user.getFirstName() + "+" + user.getLastName() +
+                    "&background=random";
+        }
+        return pictureLink;
     }
 }
