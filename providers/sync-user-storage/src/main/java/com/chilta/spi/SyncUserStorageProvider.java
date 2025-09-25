@@ -12,6 +12,7 @@ import org.keycloak.models.UserProvider;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
+import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +39,12 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
         UserModel user = local.addUser(realm, username);
 
         String sql = """
-            INSERT INTO users (uuid, \"firstName\", \"lastName\", username, email, \"pictureLink\", \"createdAt\", \"updatedAt\")
-            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+            INSERT INTO users (uuid, type, \"firstName\", \"lastName\", username, email, \"pictureLink\", \"createdAt\", \"updatedAt\")
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ON CONFLICT (uuid) DO UPDATE SET
                 \"firstName\" = EXCLUDED.\"firstName\",
                 \"lastName\" = EXCLUDED.\"lastName\",
+                type = EXCLUDED.type,
                 username = EXCLUDED.username,
                 email = EXCLUDED.email,
                 \"pictureLink\" = EXCLUDED.\"pictureLink\",
@@ -52,11 +54,15 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             UUID uuid = UUID.fromString(user.getId());
             statement.setObject(1, uuid);
-            statement.setString(2, user.getFirstName());
-            statement.setString(3, user.getLastName());
-            statement.setString(4, user.getUsername());
-            statement.setString(5, user.getEmail());
-            statement.setString(6, SyncUserAdapter.getPictureLink(user));
+            PGobject userType = new PGobject();
+            userType.setType("enum_users_type");
+            userType.setValue("Keycloak");
+            statement.setObject(2, userType);
+            statement.setString(3, user.getFirstName());
+            statement.setString(4, user.getLastName());
+            statement.setString(5, user.getUsername());
+            statement.setString(6, user.getEmail());
+            statement.setString(7, SyncUserAdapter.getPictureLink(user));
 
             int rowsAffected = statement.executeUpdate();
             logger.info("User {} in backend: {} rows affected",
