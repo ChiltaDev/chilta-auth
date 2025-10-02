@@ -56,7 +56,7 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
             statement.setObject(1, uuid);
             PGobject userType = new PGobject();
             userType.setType("enum_users_type");
-            userType.setValue("Keycloak");
+            userType.setValue("General");
             statement.setObject(2, userType);
             statement.setString(3, user.getFirstName());
             statement.setString(4, user.getLastName());
