@@ -20,6 +20,8 @@ public class SyncUserAdapter implements UserModel {
 
     private final UserModel delegate;
     private final DatabaseConnectionManager databaseConnectionManager;
+    private String tempFirstName;
+    private String tempLastName;
 
     public SyncUserAdapter(UserModel delegate, DatabaseConnectionManager databaseConnectionManager) {
         this.delegate = delegate;
@@ -99,6 +101,7 @@ public class SyncUserAdapter implements UserModel {
 
     @Override
     public void setFirstName(String firstName) {
+        tempFirstName = firstName;
         Connection connection = databaseConnectionManager.getConnection();
         String sql = "UPDATE users SET \"updatedAt\" = NOW(), \"pictureLink\" = ?, \"firstName\" = ? WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -116,6 +119,7 @@ public class SyncUserAdapter implements UserModel {
 
     @Override
     public void setLastName(String lastName) {
+        tempLastName = lastName;
         Connection connection = databaseConnectionManager.getConnection();
         String sql = "UPDATE users SET \"updatedAt\" = NOW(), \"pictureLink\" = ?, \"lastName\" = ? WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -174,12 +178,18 @@ public class SyncUserAdapter implements UserModel {
 
     @Override
     public String getFirstName() {
-        return delegate.getFirstName();
+        if (tempFirstName == null) {
+            return delegate.getFirstName();
+        }
+        return tempFirstName;
     }
 
     @Override
     public String getLastName() {
-        return delegate.getLastName();
+        if (tempLastName == null) {
+            return delegate.getLastName();
+        }
+        return tempLastName;
     }
 
     @Override
