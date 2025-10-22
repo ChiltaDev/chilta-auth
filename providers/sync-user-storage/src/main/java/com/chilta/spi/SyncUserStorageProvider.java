@@ -39,14 +39,15 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
         UserModel user = local.addUser(realm, username);
 
         String sql = """
-            INSERT INTO users (uuid, type, \"firstName\", \"lastName\", username, email, \"pictureLink\", \"createdAt\", \"updatedAt\")
-            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            INSERT INTO users (uuid, type, \"firstName\", \"lastName\", username, email, phone, \"pictureLink\", \"createdAt\", \"updatedAt\")
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ON CONFLICT (uuid) DO UPDATE SET
                 \"firstName\" = EXCLUDED.\"firstName\",
                 \"lastName\" = EXCLUDED.\"lastName\",
                 type = EXCLUDED.type,
                 username = EXCLUDED.username,
                 email = EXCLUDED.email,
+                phone = EXCLUDED.phone,
                 \"pictureLink\" = EXCLUDED.\"pictureLink\",
                 \"updatedAt\"= EXCLUDED.\"updatedAt\"
         """;
@@ -62,7 +63,8 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
             statement.setString(4, user.getLastName());
             statement.setString(5, user.getUsername());
             statement.setString(6, user.getEmail());
-            statement.setString(7, SyncUserAdapter.getPictureLink(user));
+            statement.setString(7, SyncUserAdapter.getPhone(user));
+            statement.setString(8, SyncUserAdapter.getPictureLink(user));
 
             int rowsAffected = statement.executeUpdate();
             logger.info("User {} in backend: {} rows affected",

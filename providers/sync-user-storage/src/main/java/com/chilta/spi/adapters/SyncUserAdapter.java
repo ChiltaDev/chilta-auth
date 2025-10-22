@@ -161,6 +161,20 @@ public class SyncUserAdapter implements UserModel {
         delegate.setUsername(username);
     }
 
+    public void setPhone(String phone) {
+        Connection connection = databaseConnectionManager.getConnection();
+        String sql = "UPDATE users SET \"updatedAt\" = NOW(), phone = ? WHERE uuid = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            UUID uuid = UUID.fromString(delegate.getId());
+            statement.setObject(2, uuid);
+            statement.setString(1, phone);
+            int rowsAffected = statement.executeUpdate();
+            logger.info("Updated user phone in backend: {} rows affected", rowsAffected);
+        } catch (SQLException e) {
+            throw new DatabaseErrorException("Error while updating phone.", e);
+        }
+    }
+
     @Override
     public Long getCreatedTimestamp() {
         return delegate.getCreatedTimestamp();
@@ -218,6 +232,9 @@ public class SyncUserAdapter implements UserModel {
                 break;
             case UserModel.EMAIL:
                 setEmail(values.get(0));
+                break;
+            case "phone":
+                setPhone(values.get(0));
                 break;
         }
         delegate.setAttribute(name, values);
@@ -296,5 +313,13 @@ public class SyncUserAdapter implements UserModel {
                     "&background=random";
         }
         return pictureLink;
+    }
+
+    public static String getPhone(UserModel user) {
+        String phone = user.getFirstAttribute("phone");
+        if (phone == null || phone.isEmpty()) {
+            return null;
+        }
+        return phone;
     }
 }
