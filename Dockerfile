@@ -15,7 +15,10 @@ FROM quay.io/keycloak/keycloak:24.0
 # Copiamos el JAR compilado al directorio de providers
 COPY --from=build /app/target/*.jar /opt/keycloak/providers/
 
-# Reconstruimos Keycloak para que cargue el provider
+# Copiamos el tema personalizado
+COPY themes/chilta /opt/keycloak/themes/chilta
+
+# Reconstruimos Keycloak para que cargue el provider y el tema
 RUN /opt/keycloak/bin/kc.sh build
 
 # Usamos el mismo entrypoint que antes
