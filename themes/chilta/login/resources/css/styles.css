@@ -28,6 +28,17 @@
    background-image: linear-gradient(#fff, #fff), linear-gradient(90deg, #bedbff, #00d3f3, #51a2ff);
 }
 
+@media (max-width: 767px) {
+   .login-pf-page .card-pf {
+      max-width: none;
+      margin-left: 20px;
+      margin-right: 20px;
+      padding-top: 0;
+      border-top: 0;
+      box-shadow: 0 0;
+   }
+}
+
 #kc-login,
 .pf-m-primary {
    border-radius: 8px;
