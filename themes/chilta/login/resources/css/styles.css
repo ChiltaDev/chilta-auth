@@ -12,6 +12,7 @@
    background-repeat: no-repeat;
    color: transparent;
    height: 50px;
+   user-select: none;
 }
 
 .login-pf-page {
