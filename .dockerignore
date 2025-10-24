@@ -1,0 +1,12 @@
+.git
+.gitignore
+README.md
+.env
+.idea
+.vscode
+*.log
+target/
+providers/sync-user-storage/target/
+providers/sync-user-storage/pom.xml
+providers/sync-user-storage/src/
+keycloak-spi/
