@@ -40,7 +40,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./keycloak/realm-chilta.json:/opt/keycloak/data/import/realm-chilta.json:ro
+      - ./keycloak/realm-chilta-dev.json:/opt/keycloak/data/import/realm-chilta.json:ro
     depends_on:
       - db-keycloak
     networks:

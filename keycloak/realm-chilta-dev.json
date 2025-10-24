@@ -21,36 +21,7 @@
   ],
   "adminEventsEnabled": true,
   "adminEventsDetailsEnabled": true,
-  "users": [
-    {
-      "username": "AdminUser",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "admin123"
-        }
-      ],
-      "realmRoles": [
-        "admin"
-      ]
-    },
-    {
-      "username": "NormalUser",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "user123"
-        }
-      ],
-      "realmRoles": [
-        "user"
-      ]
-    }
-  ],
+  "users": [],
   "roles": {
     "realm": [
       {
@@ -70,12 +41,10 @@
       "protocol": "openid-connect",
       "enabled": true,
       "redirectUris": [
-        "http://localhost:3000/*",
-        "http://localhost:3002/*"
+        "http://localhost:3000/*"
       ],
       "webOrigins": [
-        "http://localhost:3000",
-        "http://localhost:3002"
+        "http://localhost:3000"
       ],
       "baseUrl": "http://localhost:3000",
       "standardFlowEnabled": true,
@@ -83,7 +52,7 @@
       "directAccessGrantsEnabled": false,
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:3000/*\nhttp://localhost:3002/*"
+        "post.logout.redirect.uris": "http://localhost:3000/*"
       },
       "defaultClientScopes": [
         "web-origins",
@@ -99,24 +68,29 @@
       ]
     },
     {
-      "clientId": "chilta-api",
-      "name": "Chilta API Backend",
-      "description": "Cliente para el backend API de Chilta",
+      "clientId": "chilta-admin",
+      "name": "Chilta Admin Application",
+      "description": "Cliente para el panel de administración de Chilta",
+      "publicClient": true,
       "protocol": "openid-connect",
-      "publicClient": false,
       "enabled": true,
-      "serviceAccountsEnabled": true,
-      "standardFlowEnabled": false,
+      "redirectUris": [
+        "http://localhost:3002/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3002"
+      ],
+      "baseUrl": "http://localhost:3002",
+      "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": true,
-      "bearerOnly": false,
-      "consentRequired": false,
-      "frontchannelLogout": false,
+      "directAccessGrantsEnabled": false,
       "attributes": {
-        "access.token.lifespan": "3600",
-        "client.secret.creation.time": "1645564800"
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3002/*",
+        "registration.allowed": "false"
       },
       "defaultClientScopes": [
+        "web-origins",
         "profile",
         "roles",
         "email",

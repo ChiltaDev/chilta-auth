@@ -1,0 +1,238 @@
+{
+  "realm": "chilta",
+  "enabled": true,
+  "registrationAllowed": true,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "es",
+    "en"
+  ],
+  "defaultLocale": "es",
+  "displayName": "Chilta",
+  "loginTheme": "chilta",
+  "adminTheme": "keycloak",
+  "accountTheme": "keycloak",
+  "emailTheme": "keycloak",
+  "eventsEnabled": true,
+  "eventsListeners": [
+    "jboss-logging"
+  ],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "users": [],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin"
+      },
+      {
+        "name": "user"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "chilta-web",
+      "name": "Chilta Web Application",
+      "description": "Cliente web principal de Chilta",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "redirectUris": [
+        "https://chilta.com/*",
+        "https://www.chilta.com/*"
+      ],
+      "webOrigins": [
+        "https://chilta.com",
+        "https://www.chilta.com"
+      ],
+      "baseUrl": "https://chilta.com",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": [
+          "https://chilta.com/*",
+          "https://www.chilta.com/*"
+        ]
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email",
+        "phone"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "chilta-admin",
+      "name": "Chilta Admin Application",
+      "description": "Cliente para el panel de administración de Chilta",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "redirectUris": [
+        "https://admin.chilta.com/*"
+      ],
+      "webOrigins": [
+        "https://admin.chilta.com"
+      ],
+      "baseUrl": "https://admin.chilta.com",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": [
+          "https://admin.chilta.com/*"
+        ],
+        "registration.allowed": "false"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email",
+        "phone"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "google",
+      "providerId": "google",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": true,
+      "updateProfileFirstLoginMode": "on",
+      "config": {
+        "clientId": "${GOOGLE_CLIENT_ID}",
+        "clientSecret": "${GOOGLE_CLIENT_SECRET}",
+        "prompt": "consent",
+        "useJwksUrl": "true"
+      }
+    },
+    {
+      "alias": "facebook",
+      "providerId": "facebook",
+      "enabled": true,
+      "updateProfileFirstLoginMode": "on",
+      "trustEmail": true,
+      "storeToken": true,
+      "addReadTokenRoleOnCreate": false,
+      "authenticateByDefault": false,
+      "linkOnly": false,
+      "config": {
+        "clientId": "${FACEBOOK_CLIENT_ID}",
+        "clientSecret": "${FACEBOOK_CLIENT_SECRET}",
+        "defaultScope": "email,public_profile"
+      }
+    }
+  ],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {
+    "host": "${SMTP_HOST}",
+    "port": "${SMTP_PORT}",
+    "from": "${SMTP_FROM}",
+    "fromDisplayName": "Chilta",
+    "envelopeFrom": "${SMTP_FROM}",
+    "starttls": "true",
+    "auth": "true",
+    "user": "${SMTP_USER}",
+    "password": "${SMTP_PASSWORD}"
+  },
+  "duplicateEmailsAllowed": false,
+  "rememberMe": true,
+  "verifyEmail": true,
+  "requiredActions": [
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 10,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 30,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PROFILE",
+      "name": "Update Profile",
+      "providerId": "UPDATE_PROFILE",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 40,
+      "config": {}
+    },
+    {
+      "alias": "VERIFY_EMAIL",
+      "name": "Verify Email",
+      "providerId": "VERIFY_EMAIL",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 50,
+      "config": {}
+    }
+  ],
+  "components": {
+    "org.keycloak.storage.UserStorageProvider": [
+      {
+        "id": "sync-user-storage",
+        "name": "Sync User Storage",
+        "providerId": "sync-user-storage",
+        "config": {
+          "priority": [
+            "0"
+          ]
+        }
+      }
+    ],
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "id": "user-profile",
+        "name": "Declarative User Profile",
+        "providerId": "declarative-user-profile",
+        "subComponents": {},
+        "config": {
+          "kc.user.profile.config": [
+            "{ \"attributes\": [ { \"name\": \"username\", \"displayName\": \"${username}\", \"validations\": { \"length\": { \"min\": 3, \"max\": 255 }, \"username-prohibited-characters\": {}, \"up-username-not-idn-homograph\": {} }, \"permissions\": { \"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"] }, \"multivalued\": false }, { \"name\": \"email\", \"displayName\": \"${email}\", \"validations\": { \"email\": {}, \"length\": { \"max\": 255 } }, \"required\": { \"roles\": [\"user\"] }, \"permissions\": { \"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"] }, \"multivalued\": false }, { \"name\": \"firstName\", \"displayName\": \"${firstName}\", \"validations\": { \"length\": { \"max\": 255 }, \"person-name-prohibited-characters\": {} }, \"required\": { \"roles\": [\"user\"] }, \"permissions\": { \"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"] }, \"multivalued\": false }, { \"name\": \"lastName\", \"displayName\": \"${lastName}\", \"validations\": { \"length\": { \"max\": 255 }, \"person-name-prohibited-characters\": {} }, \"required\": { \"roles\": [\"user\"] }, \"permissions\": { \"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"] }, \"multivalued\": false }, { \"name\": \"phone\", \"displayName\": \"${phone}\", \"validations\": { \"length\": { \"min\": 8, \"max\": 20 } }, \"required\": { \"roles\": [\"user\"] }, \"permissions\": { \"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"] }, \"multivalued\": false } ] }"
+          ]
+        }
+      }
+    ]
+  },
+  "attributes": {
+    "userProfileEnabled": "true"
+  },
+  "registrationEmailAsUsername": false,
+  "editUsernameAllowed": false
+}

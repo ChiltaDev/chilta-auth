@@ -18,6 +18,9 @@ COPY --from=build /app/target/*.jar /opt/keycloak/providers/
 # Copiamos el tema personalizado
 COPY themes/chilta /opt/keycloak/themes/chilta
 
+# Copiamos configuración de realm para desarrollo
+COPY keycloak/realm-chilta-dev.json /opt/keycloak/data/import/realm-chilta.json
+
 # Reconstruimos Keycloak para que cargue el provider y el tema
 RUN /opt/keycloak/bin/kc.sh build
 

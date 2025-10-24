@@ -23,7 +23,7 @@ COPY --from=build /app/target/*.jar /opt/keycloak/providers/
 COPY themes/chilta /opt/keycloak/themes/chilta
 
 # Copiamos configuración de realm
-COPY keycloak/realm-chilta.json /opt/keycloak/data/import/
+COPY keycloak/realm-chilta-prod.json /opt/keycloak/data/import/realm-chilta.json
 
 # Cambiar ownership de archivos
 RUN chown -R keycloak:keycloak /opt/keycloak
