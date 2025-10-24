@@ -5,6 +5,7 @@
   "resetPasswordAllowed": true,
   "loginWithEmailAllowed": true,
   "internationalizationEnabled": true,
+  "defaultRoles": ["user"],
   "supportedLocales": [
     "es",
     "en"
@@ -87,7 +88,7 @@
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "http://localhost:3002/*",
-        "registration.allowed": "false"
+        "require.roles": "admin"
       },
       "defaultClientScopes": [
         "web-origins",

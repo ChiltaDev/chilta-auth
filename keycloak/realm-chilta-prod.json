@@ -22,6 +22,7 @@
   "adminEventsEnabled": true,
   "adminEventsDetailsEnabled": true,
   "users": [],
+  "defaultRoles": ["user"],
   "roles": {
     "realm": [
       {
@@ -54,10 +55,7 @@
       "directAccessGrantsEnabled": false,
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": [
-          "https://chilta.com/*",
-          "https://www.chilta.com/*"
-        ]
+        "post.logout.redirect.uris": "https://chilta.com/*"
       },
       "defaultClientScopes": [
         "web-origins",
@@ -151,17 +149,7 @@
     "xXSSProtection": "1; mode=block",
     "strictTransportSecurity": "max-age=31536000; includeSubDomains"
   },
-  "smtpServer": {
-    "host": "${SMTP_HOST}",
-    "port": "${SMTP_PORT}",
-    "from": "${SMTP_FROM}",
-    "fromDisplayName": "Chilta",
-    "envelopeFrom": "${SMTP_FROM}",
-    "starttls": "true",
-    "auth": "true",
-    "user": "${SMTP_USER}",
-    "password": "${SMTP_PASSWORD}"
-  },
+  "smtpServer": {},
   "duplicateEmailsAllowed": false,
   "rememberMe": true,
   "verifyEmail": true,
@@ -198,7 +186,7 @@
       "name": "Verify Email",
       "providerId": "VERIFY_EMAIL",
       "enabled": true,
-      "defaultAction": true,
+      "defaultAction": false,
       "priority": 50,
       "config": {}
     }
