@@ -39,12 +39,11 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
         UserModel user = local.addUser(realm, username);
 
         String sql = """
-            INSERT INTO users (uuid, type, \"firstName\", \"lastName\", username, email, phone, \"pictureLink\", \"createdAt\", \"updatedAt\")
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            INSERT INTO users (uuid, \"firstName\", \"lastName\", username, email, phone, \"pictureLink\", \"createdAt\", \"updatedAt\")
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ON CONFLICT (uuid) DO UPDATE SET
                 \"firstName\" = EXCLUDED.\"firstName\",
                 \"lastName\" = EXCLUDED.\"lastName\",
-                type = EXCLUDED.type,
                 username = EXCLUDED.username,
                 email = EXCLUDED.email,
                 phone = EXCLUDED.phone,
@@ -55,16 +54,12 @@ public class SyncUserStorageProvider implements UserRegistrationProvider, UserLo
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             UUID uuid = UUID.fromString(user.getId());
             statement.setObject(1, uuid);
-            PGobject userType = new PGobject();
-            userType.setType("enum_users_type");
-            userType.setValue("General");
-            statement.setObject(2, userType);
-            statement.setString(3, user.getFirstName());
-            statement.setString(4, user.getLastName());
-            statement.setString(5, user.getUsername());
-            statement.setString(6, user.getEmail());
-            statement.setString(7, SyncUserAdapter.getPhone(user));
-            statement.setString(8, SyncUserAdapter.getPictureLink(user));
+            statement.setString(2, user.getFirstName());
+            statement.setString(3, user.getLastName());
+            statement.setString(4, user.getUsername());
+            statement.setString(5, user.getEmail());
+            statement.setString(6, SyncUserAdapter.getPhone(user));
+            statement.setString(7, SyncUserAdapter.getPictureLink(user));
 
             int rowsAffected = statement.executeUpdate();
             logger.info("User {} in backend: {} rows affected",
