@@ -13,8 +13,8 @@ RUN mvn clean package -DskipTests
 FROM quay.io/keycloak/keycloak:24.0
 
 # Crear usuario no-root para seguridad
-RUN addgroup -g 1001 -S keycloak && \
-    adduser -S keycloak -u 1001
+RUN groupadd -g 1001 keycloak && \
+    useradd -u 1001 -g keycloak -s /bin/sh keycloak
 
 # Copiamos el JAR compilado al directorio de providers
 COPY --from=build /app/target/*.jar /opt/keycloak/providers/
