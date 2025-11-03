@@ -12,10 +12,6 @@ RUN mvn clean package -DskipTests
 # --- Etapa 2: Imagen de Keycloak para producción ---
 FROM quay.io/keycloak/keycloak:24.0
 
-# Crear usuario no-root para seguridad
-RUN groupadd -g 1001 keycloak && \
-    useradd -u 1001 -g keycloak -s /bin/sh keycloak
-
 # Copiamos el JAR compilado al directorio de providers
 COPY --from=build /app/target/*.jar /opt/keycloak/providers/
 
