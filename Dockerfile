@@ -13,16 +13,13 @@ RUN mvn clean package -DskipTests
 FROM quay.io/keycloak/keycloak:24.0
 
 # Copiamos el JAR compilado al directorio de providers
-COPY --from=build /app/target/*.jar /opt/keycloak/providers/
+COPY --from=build --chown=keycloak:keycloak /app/target/*.jar /opt/keycloak/providers/
 
 # Copiamos el tema personalizado
-COPY themes/chilta /opt/keycloak/themes/chilta
+COPY --chown=keycloak:keycloak themes/chilta /opt/keycloak/themes/chilta
 
 # Copiamos configuración de realm
-COPY keycloak/realm-chilta-prod.json /opt/keycloak/data/import/realm-chilta.json
-
-# Cambiar ownership de archivos
-RUN chown -R keycloak:keycloak /opt/keycloak
+COPY --chown=keycloak:keycloak keycloak/realm-chilta-prod.json /opt/keycloak/data/import/realm-chilta.json
 
 # Cambiar a usuario no-root
 USER keycloak
