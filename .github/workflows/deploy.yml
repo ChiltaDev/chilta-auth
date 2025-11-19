@@ -24,8 +24,8 @@ jobs:
     env:
       ENVIRONMENT: ${{ github.event.inputs.environment }}
       ECR_REPOSITORY: chilta-auth/${{ github.event.inputs.environment }}
-      ECS_CLUSTER: chilta-cluster-${{ github.event.inputs.environment }}
-      ECS_SERVICE: chilta-auth-service-${{ github.event.inputs.environment }}
+      ECS_CLUSTER: chilta-${{ github.event.inputs.environment }}-cluster
+      ECS_SERVICE: chilta-auth-${{ github.event.inputs.environment }}-service
       CONTAINER_NAME: keycloak
       TASK_DEFINITION: chilta-auth-${{ github.event.inputs.environment }}
 
