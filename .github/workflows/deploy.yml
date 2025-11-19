@@ -61,6 +61,8 @@ jobs:
         aws ecs describe-task-definition \
           --task-definition $TASK_DEFINITION \
           --query taskDefinition > task-definition.json
+        # Remove enableFaultInjection field if present (not valid for task definition registration)
+        python3 -c "import json; data = json.load(open('task-definition.json')); data.pop('enableFaultInjection', None); json.dump(data, open('task-definition.json', 'w'), indent=2)"
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
