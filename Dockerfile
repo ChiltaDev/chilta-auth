@@ -25,7 +25,8 @@ COPY --chown=keycloak:keycloak keycloak/realm-chilta-prod.json /opt/keycloak/dat
 USER keycloak
 
 # Reconstruimos Keycloak para que cargue el provider y el tema
-RUN /opt/keycloak/bin/kc.sh build
+# Deshabilitamos transacciones XA durante el build para evitar warnings
+RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 
 # Exponer puerto
 EXPOSE 8080
@@ -34,6 +35,7 @@ EXPOSE 8080
 ENV KC_HOSTNAME_STRICT=false
 ENV KC_HOSTNAME_STRICT_HTTPS=false
 ENV KC_HTTP_ENABLED=true
+ENV KC_TRANSACTION_XA_ENABLED=false
 
 # Comando de inicio para producción
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--import-realm"]
