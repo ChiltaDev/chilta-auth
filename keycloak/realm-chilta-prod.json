@@ -89,9 +89,7 @@
       "directAccessGrantsEnabled": false,
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": [
-          "https://admin.chilta.com/*"
-        ],
+        "post.logout.redirect.uris": "https://admin.chilta.com/*",
         "registration.allowed": "false"
       },
       "defaultClientScopes": [
